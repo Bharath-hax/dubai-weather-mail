@@ -26,6 +26,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Dubai weather email automation
+        if: ${{ secrets.SMTP_HOST != '' && secrets.SMTP_PORT != '' && secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '' && secrets.EMAIL_TO != '' }}
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -33,3 +34,9 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python weather_email.py
+
+      - name: Skip run when email secrets are missing
+        if: ${{ secrets.SMTP_HOST == '' || secrets.SMTP_PORT == '' || secrets.SMTP_USERNAME == '' || secrets.SMTP_PASSWORD == '' || secrets.EMAIL_TO == '' }}
+        run: |
+          echo "::warning::Skipping weather email run because required repository secrets are missing."
+          echo "::warning::Set SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, and EMAIL_TO in Settings -> Secrets and variables -> Actions."
