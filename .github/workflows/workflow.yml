@@ -1,0 +1,35 @@
+name: Dubai Weather Email
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 03:00 UTC = 07:00 Asia/Dubai (UTC+4)
+    - cron: "0 3 * * *"
+
+concurrency:
+  group: dubai-weather-email
+  cancel-in-progress: false
+
+jobs:
+  send-weather-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Dubai weather email automation
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python weather_email.py
